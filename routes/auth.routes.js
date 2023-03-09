@@ -84,6 +84,7 @@ router.post("/acceso", async (req, res, next) => {
       _id: userFound._id,
       email: userFound.email,
       username: userFound.username,
+      profileImage: userFound.profileImage
     };
 
     const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {

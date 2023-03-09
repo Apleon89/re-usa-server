@@ -1,7 +1,6 @@
+const router = require("express").Router();
 const AdModel = require("../models/Ad.model");
 const UserModel = require("../models/User.model");
-
-const router = require("express").Router();
 
 // Añadir Anuncio
 router.post("/anadir", async (req, res, next) => {
@@ -92,22 +91,21 @@ router.get("/:idProducto", async (req, res, next) => {
 
 // Añadir/Eliminar favorito un anuncio
 router.post("/:idProducto/favorito", async (req, res, next) => {
-
   const { favAd, delFavAd } = req.body;
   const { idProducto } = req.params;
   const activeUSerId = req.payload._id;
   try {
     if (favAd) {
-        await UserModel.findByIdAndUpdate(activeUSerId, {
-            $push: {favouritesAds: favAd}
-        })
-        res.json('favorito añadido')
+      await UserModel.findByIdAndUpdate(activeUSerId, {
+        $push: { favouritesAds: favAd },
+      });
+      res.json("favorito añadido");
     }
     if (delFavAd) {
-        await UserModel.findByIdAndUpdate(activeUSerId, {
-            $pull: { favouritesAds: delFavAd}
-        })
-        res.json('favorito eliminado')
+      await UserModel.findByIdAndUpdate(activeUSerId, {
+        $pull: { favouritesAds: delFavAd },
+      });
+      res.json("favorito eliminado");
     }
   } catch (error) {}
 });
