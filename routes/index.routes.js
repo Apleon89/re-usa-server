@@ -10,4 +10,6 @@ router.use("/auth", require("./auth.routes.js"));
 
 router.use("/perfil", isAuthenticated, require("./profile.routes.js"));
 
+router.use("/anuncios", isAuthenticated, require("./ad.routes.js"));
+
 module.exports = router;

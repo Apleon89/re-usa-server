@@ -24,7 +24,7 @@ const userSchema = new Schema(
     favouritesAds: [
       {
         type: Schema.Types.ObjectID,
-        ref: "Ads",
+        ref: "Ad",
       },
     ],
   },

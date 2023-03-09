@@ -1,38 +1,42 @@
 const { Schema, model } = require("mongoose");
 
-const adSchema = new Schema({
-  owner: {
-    type: Schema.Types.ObjectId,
-    ref: "Users",
-  },
-  title: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  category: [
-    {
-      type: String,
-      enum: [
-        "Videojuegos",
-        "Telefonía",
-        "Informática",
-        "Imagen y Sonido",
-        "Productos del hogar",
-        "Deportes",
-        "Motor",
-        "Libros",
-      ],
+const adSchema = new Schema(
+  {
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "Users",
     },
-  ],
-  adImages: [String],
-});
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    category: [
+      {
+        type: String,
+        enum: [
+          "Videojuegos",
+          "Telefonía",
+          "Informática",
+          "Imagen y Sonido",
+          "Productos del hogar",
+          "Deportes",
+          "Motor",
+          "Libros",
+        ],
+      },
+    ],
+    adImages: [String],
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const AdModel = model ('Ad', adSchema)
+const AdModel = model("Ad", adSchema);
 
-module.exports = AdModel
-
+module.exports = AdModel;
