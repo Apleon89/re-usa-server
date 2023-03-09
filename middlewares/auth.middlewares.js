@@ -16,8 +16,6 @@ const isAuthenticated = expressjwt({
     if (tokenType !== "Bearer") {
       return null;
     }
-
-    console.log("El Token existe y tiene el tipo correcto");
     return token;
   },
 });
