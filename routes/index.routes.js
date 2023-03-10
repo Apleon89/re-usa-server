@@ -14,4 +14,6 @@ router.use("/anuncios", isAuthenticated, require("./ad.routes.js"));
 
 router.use('/mensajes', isAuthenticated, require('./messages.routes.js'))
 
+router.use("/upload", require('./upload.routes'));
+
 module.exports = router;

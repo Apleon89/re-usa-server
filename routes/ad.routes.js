@@ -32,8 +32,13 @@ router.post("/anadir", async (req, res, next) => {
 // Listar anuncios
 router.get("/", async (req, res, next) => {
   try {
-    const response = await AdModel.find();
-    res.json(response);
+    const response = await AdModel.find()
+      .populate("owner", "username")
+      .select("owner title adImages updatedAt");
+    const ordenedArr = response.sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+    res.json(ordenedArr);
   } catch (error) {
     next(error);
   }
@@ -54,13 +59,13 @@ router.get("/favoritos", async (req, res, next) => {
 
 // Editar anuncios
 router.patch("/:idProducto/editar", async (req, res, next) => {
-  const { idProduct } = req.params;
+  const { idProducto } = req.params;
   const { title, description, category, image1, image2, image3, image4 } =
     req.body;
 
   try {
-    const response = await AdModel.findByIdAndUpdate(
-      idProduct,
+    await AdModel.findByIdAndUpdate(
+      idProducto,
       {
         title,
         description,
@@ -71,7 +76,7 @@ router.patch("/:idProducto/editar", async (req, res, next) => {
         new: true,
       }
     );
-    res.json(response);
+    res.json("anuncio modificado");
     console.log("anuncio modificado");
   } catch (error) {
     next(error);
@@ -82,17 +87,29 @@ router.patch("/:idProducto/editar", async (req, res, next) => {
 router.get("/:idProducto", async (req, res, next) => {
   const { idProducto } = req.params;
   try {
+    const user = await UserModel.findById(req.payload).select('favouritesAds')
     const response = await AdModel.findById(idProducto);
-    res.json(response);
+
+    res.json([response, user]);
   } catch (error) {
     next(error);
   }
 });
 
-// Añadir/Eliminar favorito un anuncio
-router.post("/:idProducto/favorito", async (req, res, next) => {
-  const { favAd, delFavAd } = req.body;
+// Eliminar anuncio
+router.delete('/:idProducto/eliminar', async (req, res, next) => {
   const { idProducto } = req.params;
+
+  try {
+    await AdModel.findByIdAndDelete(idProducto)
+    res.json()
+  } catch (error) {
+    next(error)
+  }
+})
+// Añadir/Eliminar favorito un anuncio
+router.patch("/:idProducto/favorito", async (req, res, next) => {
+  const { favAd, delFavAd } = req.body;
   const activeUSerId = req.payload._id;
   try {
     if (favAd) {
@@ -107,7 +124,10 @@ router.post("/:idProducto/favorito", async (req, res, next) => {
       });
       res.json("favorito eliminado");
     }
-  } catch (error) {}
+  } catch (error) { 
+    next(error)
+    console.log(error);
+  }
 });
 
 module.exports = router;
