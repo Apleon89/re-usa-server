@@ -1,9 +1,10 @@
 const router = require("express").Router();
 const AdModel = require("../models/Ad.model");
 const UserModel = require("../models/User.model");
+const isAuthenticated = require("../middlewares/auth.middlewares.js");
 
 // Añadir Anuncio
-router.post("/anadir", async (req, res, next) => {
+router.post("/anadir", isAuthenticated, async (req, res, next) => {
   const {
     owner,
     title,
@@ -34,7 +35,7 @@ router.get("/", async (req, res, next) => {
   try {
     const response = await AdModel.find()
       .populate("owner", "username")
-      .select("owner title adImages updatedAt category");
+      .select("owner title adImages updatedAt category description");
     const ordenedArr = response.sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
@@ -45,7 +46,7 @@ router.get("/", async (req, res, next) => {
 });
 
 // Anuncios favoritos del usuario
-router.get("/favoritos", async (req, res, next) => {
+router.get("/favoritos", isAuthenticated, async (req, res, next) => {
   const activeUSerId = req.payload._id;
   try {
     const response = await UserModel.findById(activeUSerId).populate(
@@ -61,7 +62,7 @@ router.get("/favoritos", async (req, res, next) => {
 });
 
 // Editar anuncios
-router.patch("/:idProducto/editar", async (req, res, next) => {
+router.patch("/:idProducto/editar", isAuthenticated, async (req, res, next) => {
   const { idProducto } = req.params;
   const { title, description, category, image1, image2, image3, image4 } =
     req.body;
@@ -87,11 +88,11 @@ router.patch("/:idProducto/editar", async (req, res, next) => {
 });
 
 // Detalles de un anuncio
-router.get("/:idProducto", async (req, res, next) => {
+router.get("/:idProducto", isAuthenticated, async (req, res, next) => {
   const { idProducto } = req.params;
   try {
     const user = await UserModel.findById(req.payload).select('favouritesAds')
-    const response = await AdModel.findById(idProducto);
+    const response = await AdModel.findById(idProducto).populate('owner', 'location');
     res.json([response, user]);
   } catch (error) {
     next(error);
@@ -100,7 +101,7 @@ router.get("/:idProducto", async (req, res, next) => {
 });
 
 // Eliminar anuncio
-router.delete('/:idProducto/eliminar', async (req, res, next) => {
+router.delete('/:idProducto/eliminar', isAuthenticated, async (req, res, next) => {
   const { idProducto } = req.params;
 
   try {
@@ -111,7 +112,7 @@ router.delete('/:idProducto/eliminar', async (req, res, next) => {
   }
 })
 // Añadir/Eliminar favorito un anuncio
-router.patch("/:idProducto/favorito", async (req, res, next) => {
+router.patch("/:idProducto/favorito", isAuthenticated, async (req, res, next) => {
   const { favAd, delFavAd } = req.body;
   const activeUSerId = req.payload._id;
   try {
