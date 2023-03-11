@@ -34,7 +34,7 @@ router.get("/", async (req, res, next) => {
   try {
     const response = await AdModel.find()
       .populate("owner", "username")
-      .select("owner title adImages updatedAt");
+      .select("owner title adImages updatedAt category");
     const ordenedArr = response.sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
@@ -51,7 +51,10 @@ router.get("/favoritos", async (req, res, next) => {
     const response = await UserModel.findById(activeUSerId).populate(
       "favouritesAds"
     );
-    res.json(response.favouritesAds);
+    const ordenedArr = response.favouritesAds.sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    })
+    res.json(ordenedArr);
   } catch (error) {
     next(error);
   }
@@ -89,10 +92,10 @@ router.get("/:idProducto", async (req, res, next) => {
   try {
     const user = await UserModel.findById(req.payload).select('favouritesAds')
     const response = await AdModel.findById(idProducto);
-
     res.json([response, user]);
   } catch (error) {
     next(error);
+    console.log(error);
   }
 });
 
