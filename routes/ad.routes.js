@@ -24,7 +24,7 @@ router.post("/anadir", isAuthenticated, async (req, res, next) => {
       category,
       adImages: [image1, image2, image3, image4],
     });
-    res.json(response);
+    res.status(201).json(response);
   } catch (error) {
     next(error);
   }
@@ -39,7 +39,7 @@ router.get("/", async (req, res, next) => {
     const ordenedArr = response.sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
-    res.json(ordenedArr);
+    res.status(200).json(ordenedArr);
   } catch (error) {
     next(error);
   }
@@ -55,7 +55,7 @@ router.get("/favoritos", isAuthenticated, async (req, res, next) => {
     const ordenedArr = response.favouritesAds.sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
-    res.json(ordenedArr);
+    res.status(200).json(ordenedArr);
   } catch (error) {
     next(error);
   }
@@ -80,8 +80,7 @@ router.patch("/:idProducto/editar", isAuthenticated, async (req, res, next) => {
         new: true,
       }
     );
-    res.json("anuncio modificado");
-    console.log("anuncio modificado");
+    res.status(202).json("anuncio modificado");
   } catch (error) {
     next(error);
   }
@@ -96,7 +95,7 @@ router.get("/:idProducto", isAuthenticated, async (req, res, next) => {
       "owner",
       "location username"
     );
-    res.json([response, user]);
+    res.status(200).json([response, user]);
   } catch (error) {
     next(error);
     console.log(error);
@@ -112,7 +111,7 @@ router.delete(
 
     try {
       await AdModel.findByIdAndDelete(idProducto);
-      res.json();
+      res.status(200).json();
     } catch (error) {
       next(error);
     }
@@ -130,13 +129,13 @@ router.patch(
         await UserModel.findByIdAndUpdate(activeUSerId, {
           $push: { favouritesAds: favAd },
         });
-        res.json("favorito añadido");
+        res.status(202).json("favorito añadido");
       }
       if (delFavAd) {
         await UserModel.findByIdAndUpdate(activeUSerId, {
           $pull: { favouritesAds: delFavAd },
         });
-        res.json("favorito eliminado");
+        res.status(202).json("favorito eliminado");
       }
     } catch (error) {
       next(error);

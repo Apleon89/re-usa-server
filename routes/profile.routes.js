@@ -8,7 +8,7 @@ router.get("/:idUsuario", async (req, res, next) => {
     const response = await UserModel.findById(idUsuario).select(
       "profileImage username email location"
     );
-    res.json(response);
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }
@@ -37,10 +37,9 @@ router.patch("/:idUsuario/editar", async (req, res, next) => {
         new: true,
       }
     );
-    console.log(response);
-    res.json(response);
+    res.status(202).json(response);
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 
@@ -48,18 +47,7 @@ router.get("/:idUsuario/misAnuncios", async (req, res, next) => {
   const { idUsuario } = req.params;
   try {
     const response = await AdModel.find({ owner: idUsuario });
-    res.json(response);
-  } catch (error) {
-    next(error);
-  }
-});
-
-//! Eliminar esta ruta en caso de dejar la siguiente
-router.delete("/:idUsuario/delete", async (req, res, next) => {
-  const { idUsuario } = req.params;
-  try {
-    await UserModel.findByIdAndDelete(idUsuario);
-    res.json("Usuario Eliminado");
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }
@@ -69,22 +57,22 @@ router.patch("/:idUsuario/delete", async (req, res, next) => {
   const { idUsuario } = req.params;
   try {
     await UserModel.findByIdAndUpdate(idUsuario, {
-    username: `Usuario Eliminado ${idUsuario}`,
-    email: `${idUsuario}@usuario.com`,
-    location: '',
-    profileImage: '',
-  });
-  const deletedUserAds = await AdModel.find({ owner: idUsuario })
+      username: `Usuario Eliminado ${idUsuario}`,
+      email: `${idUsuario}@usuario.com`,
+      location: "",
+      profileImage:
+        "https://res.cloudinary.com/dacltsvln/image/upload/v1678703493/re-Usa/ycvqs2xrodjsdigteaew.png",
+    });
+    const deletedUserAds = await AdModel.find({ owner: idUsuario });
     console.log(deletedUserAds);
-    deletedUserAds.forEach( async each => {
+    deletedUserAds.forEach(async (each) => {
       try {
-        await AdModel.findByIdAndDelete(each._id)
-
+        await AdModel.findByIdAndDelete(each._id);
       } catch (error) {
-        console.log(error);        
+        console.log(error);
       }
-    })
-    res.json("Usuario Eliminado");
+    });
+    res.status(200).json("Usuario Eliminado");
   } catch (error) {
     next(error);
     console.log(error);

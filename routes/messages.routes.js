@@ -46,7 +46,7 @@ router.get("/", async (req, res, next) => {
       );
     });
 
-    res.json(filterMessages);
+    res.status(200).json(filterMessages);
   } catch (error) {
     next(error);
     console.log(error);
@@ -65,7 +65,7 @@ router.post("/:idUsuario", async (req, res, next) => {
       transmitter: activeUSerId,
       receiver: idUsuario,
     });
-    res.json(response);
+    res.status(201).json(response);
   } catch (error) {
     next(error);
   }
@@ -86,7 +86,7 @@ router.get("/:idUsuario", async (req, res, next) => {
       ],
     }).populate("transmitter receiver", "username profileImage");
 
-    res.json([theOtherUser, mensajes]);
+    res.status(200).json([theOtherUser, mensajes]);
   } catch (error) {}
 });
 
