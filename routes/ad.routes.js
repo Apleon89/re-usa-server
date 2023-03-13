@@ -94,7 +94,7 @@ router.get("/:idProducto", isAuthenticated, async (req, res, next) => {
     const user = await UserModel.findById(req.payload).select("favouritesAds");
     const response = await AdModel.findById(idProducto).populate(
       "owner",
-      "location"
+      "location username"
     );
     res.json([response, user]);
   } catch (error) {

@@ -20,7 +20,10 @@ const userSchema = new Schema(
       required: true,
     },
     location: String,
-    profileImage: String,
+    profileImage: {
+      type: String,
+      default: 'https://res.cloudinary.com/dacltsvln/image/upload/v1678703493/re-Usa/ycvqs2xrodjsdigteaew.png'
+    },
     favouritesAds: [
       {
         type: Schema.Types.ObjectID,
