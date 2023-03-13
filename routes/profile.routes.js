@@ -19,7 +19,8 @@ router.patch("/:idUsuario/editar", async (req, res, next) => {
   const { username, location, profileImage } = req.body;
   try {
     const usernameFound = await UserModel.findOne({ username: username });
-    if (usernameFound) {
+    console.log(usernameFound);
+    if (usernameFound && usernameFound._id != idUsuario) {
       return res
         .status(400)
         .json({ errorMessage: "Nombre de Usuario registrado" });
@@ -53,6 +54,7 @@ router.get("/:idUsuario/misAnuncios", async (req, res, next) => {
   }
 });
 
+//! Eliminar esta ruta en caso de dejar la siguiente
 router.delete("/:idUsuario/delete", async (req, res, next) => {
   const { idUsuario } = req.params;
   try {
@@ -60,6 +62,32 @@ router.delete("/:idUsuario/delete", async (req, res, next) => {
     res.json("Usuario Eliminado");
   } catch (error) {
     next(error);
+  }
+});
+
+router.patch("/:idUsuario/delete", async (req, res, next) => {
+  const { idUsuario } = req.params;
+  try {
+    await UserModel.findByIdAndUpdate(idUsuario, {
+    username: `Usuario Eliminado ${idUsuario}`,
+    email: `${idUsuario}@usuario.com`,
+    location: '',
+    profileImage: '',
+  });
+  const deletedUserAds = await AdModel.find({ owner: idUsuario })
+    console.log(deletedUserAds);
+    deletedUserAds.forEach( async each => {
+      try {
+        await AdModel.findByIdAndDelete(each._id)
+
+      } catch (error) {
+        console.log(error);        
+      }
+    })
+    res.json("Usuario Eliminado");
+  } catch (error) {
+    next(error);
+    console.log(error);
   }
 });
 

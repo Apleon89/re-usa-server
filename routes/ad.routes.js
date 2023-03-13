@@ -49,12 +49,12 @@ router.get("/", async (req, res, next) => {
 router.get("/favoritos", isAuthenticated, async (req, res, next) => {
   const activeUSerId = req.payload._id;
   try {
-    const response = await UserModel.findById(activeUSerId).populate(
-      "favouritesAds"
-    );
+    const response = await UserModel.findById(activeUSerId)
+      .select("favouritesAds")
+      .populate("favouritesAds");
     const ordenedArr = response.favouritesAds.sort((a, b) => {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    })
+    });
     res.json(ordenedArr);
   } catch (error) {
     next(error);
@@ -91,8 +91,11 @@ router.patch("/:idProducto/editar", isAuthenticated, async (req, res, next) => {
 router.get("/:idProducto", isAuthenticated, async (req, res, next) => {
   const { idProducto } = req.params;
   try {
-    const user = await UserModel.findById(req.payload).select('favouritesAds')
-    const response = await AdModel.findById(idProducto).populate('owner', 'location');
+    const user = await UserModel.findById(req.payload).select("favouritesAds");
+    const response = await AdModel.findById(idProducto).populate(
+      "owner",
+      "location"
+    );
     res.json([response, user]);
   } catch (error) {
     next(error);
@@ -101,37 +104,45 @@ router.get("/:idProducto", isAuthenticated, async (req, res, next) => {
 });
 
 // Eliminar anuncio
-router.delete('/:idProducto/eliminar', isAuthenticated, async (req, res, next) => {
-  const { idProducto } = req.params;
+router.delete(
+  "/:idProducto/eliminar",
+  isAuthenticated,
+  async (req, res, next) => {
+    const { idProducto } = req.params;
 
-  try {
-    await AdModel.findByIdAndDelete(idProducto)
-    res.json()
-  } catch (error) {
-    next(error)
+    try {
+      await AdModel.findByIdAndDelete(idProducto);
+      res.json();
+    } catch (error) {
+      next(error);
+    }
   }
-})
+);
 // Añadir/Eliminar favorito un anuncio
-router.patch("/:idProducto/favorito", isAuthenticated, async (req, res, next) => {
-  const { favAd, delFavAd } = req.body;
-  const activeUSerId = req.payload._id;
-  try {
-    if (favAd) {
-      await UserModel.findByIdAndUpdate(activeUSerId, {
-        $push: { favouritesAds: favAd },
-      });
-      res.json("favorito añadido");
+router.patch(
+  "/:idProducto/favorito",
+  isAuthenticated,
+  async (req, res, next) => {
+    const { favAd, delFavAd } = req.body;
+    const activeUSerId = req.payload._id;
+    try {
+      if (favAd) {
+        await UserModel.findByIdAndUpdate(activeUSerId, {
+          $push: { favouritesAds: favAd },
+        });
+        res.json("favorito añadido");
+      }
+      if (delFavAd) {
+        await UserModel.findByIdAndUpdate(activeUSerId, {
+          $pull: { favouritesAds: delFavAd },
+        });
+        res.json("favorito eliminado");
+      }
+    } catch (error) {
+      next(error);
+      console.log(error);
     }
-    if (delFavAd) {
-      await UserModel.findByIdAndUpdate(activeUSerId, {
-        $pull: { favouritesAds: delFavAd },
-      });
-      res.json("favorito eliminado");
-    }
-  } catch (error) { 
-    next(error)
-    console.log(error);
   }
-});
+);
 
 module.exports = router;

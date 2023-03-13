@@ -5,6 +5,7 @@ const UserModel = require("../models/User.model");
 //Listar todos los chat abiertos con otros usuarios
 router.get("/", async (req, res, next) => {
   const activeUSer = req.payload;
+  const openChats = [];
   try {
     const messages = await MessagesModel.find({
       $or: [
@@ -13,7 +14,27 @@ router.get("/", async (req, res, next) => {
       ],
     }).populate("transmitter receiver", "username profileImage");
 
-    const filterMessages = messages.filter((obj, index, self) => {
+    const ordenedArr = messages.sort((a, b) => {
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+
+    ordenedArr.forEach((each) => {
+      if (each.transmitter._id == activeUSer._id) {
+        openChats.push({
+          id: each.receiver._id,
+          username: each.receiver.username,
+          img: each.receiver.profileImage,
+        });
+      } else {
+        openChats.push({
+          id: each.transmitter._id,
+          username: each.transmitter.username,
+          img: each.transmitter.profileImage,
+        });
+      }
+    });
+
+    const filterMessages = openChats.filter((obj, index, self) => {
       return (
         index ===
         self.findIndex((o) => {
@@ -44,7 +65,6 @@ router.post("/:idUsuario", async (req, res, next) => {
       transmitter: activeUSerId,
       receiver: idUsuario,
     });
-    console.log(response);
     res.json(response);
   } catch (error) {
     next(error);
@@ -56,7 +76,9 @@ router.get("/:idUsuario", async (req, res, next) => {
   const { idUsuario } = req.params;
   const activeUSer = req.payload;
   try {
-    const theOtherUser = await UserModel.findById(idUsuario);
+    const theOtherUser = await UserModel.findById(idUsuario).select(
+      "username profileImage"
+    );
     const mensajes = await MessagesModel.find({
       $or: [
         { $and: [{ transmitter: activeUSer }, { receiver: theOtherUser }] },
@@ -64,10 +86,8 @@ router.get("/:idUsuario", async (req, res, next) => {
       ],
     }).populate("transmitter receiver", "username profileImage");
 
-    console.log(mensajes);
-    res.json(mensajes);
+    res.json([theOtherUser, mensajes]);
   } catch (error) {}
 });
 
 module.exports = router;
-
