@@ -90,4 +90,52 @@ router.get("/:idUsuario", async (req, res, next) => {
   } catch (error) {}
 });
 
+// Borrar todos los mensajes con un usuario
+router.delete("/:idUsuario", async (req, res, next) => {
+  const { idUsuario } = req.params;
+  const activeUser = req.payload;
+  try {
+    const theOtherUser = await UserModel.findById(idUsuario);
+    const mensajes = await MessagesModel.find({
+      $or: [
+        { $and: [{ transmitter: activeUser }, { receiver: theOtherUser }] },
+        { $and: [{ transmitter: theOtherUser }, { receiver: activeUser }] },
+      ],
+    });
+    mensajes.forEach(async (each) => {
+      try {
+        await MessagesModel.findByIdAndDelete(each._id);
+      } catch (error) {}
+    });
+    res.status(200).json("mensajes borrados");
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Editar un mensaje enviado
+router.patch("/:idMensaje", async (req, res, next) => {
+  const { idMensaje } = req.params;
+  const { message } = req.body;
+  try {
+    await MessagesModel.findByIdAndUpdate(idMensaje, {
+      message,
+    });
+    res.status(200).json("mensaje actualizado");
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Borrar un mensaje enviado
+router.delete("/:idMensaje", async (req, res, next) => {
+  const { idMensaje } = req.params;
+  try {
+    await MessagesModel.findByIdAndDelete(idMensaje);
+    res.status(200).json("mensaje borrado");
+  } catch (error) {
+    next(error).log(error);
+  }
+});
+
 module.exports = router;
