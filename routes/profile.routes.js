@@ -19,7 +19,6 @@ router.patch("/:idUsuario/editar", async (req, res, next) => {
   const { username, location, profileImage } = req.body;
   try {
     const usernameFound = await UserModel.findOne({ username: username });
-    console.log(usernameFound);
     if (usernameFound && usernameFound._id != idUsuario) {
       return res
         .status(400)
@@ -64,18 +63,14 @@ router.patch("/:idUsuario/delete", async (req, res, next) => {
         "https://res.cloudinary.com/dacltsvln/image/upload/v1678703493/re-Usa/ycvqs2xrodjsdigteaew.png",
     });
     const deletedUserAds = await AdModel.find({ owner: idUsuario });
-    console.log(deletedUserAds);
     deletedUserAds.forEach(async (each) => {
       try {
         await AdModel.findByIdAndDelete(each._id);
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) {}
     });
     res.status(200).json("Usuario Eliminado");
   } catch (error) {
     next(error);
-    console.log(error);
   }
 });
 

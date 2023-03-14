@@ -98,7 +98,6 @@ router.get("/:idProducto", isAuthenticated, async (req, res, next) => {
     res.status(200).json([response, user]);
   } catch (error) {
     next(error);
-    console.log(error);
   }
 });
 
@@ -139,7 +138,6 @@ router.patch(
       }
     } catch (error) {
       next(error);
-      console.log(error);
     }
   }
 );
