@@ -90,7 +90,7 @@ router.get("/:idUsuario", async (req, res, next) => {
 });
 
 // Borrar todos los mensajes con un usuario
-router.delete("/:idUsuario", async (req, res, next) => {
+router.delete("/:idUsuario/borrarTodos", async (req, res, next) => {
   const { idUsuario } = req.params;
   const activeUser = req.payload;
   try {
@@ -100,12 +100,8 @@ router.delete("/:idUsuario", async (req, res, next) => {
         { $and: [{ transmitter: activeUser }, { receiver: theOtherUser }] },
         { $and: [{ transmitter: theOtherUser }, { receiver: activeUser }] },
       ],
-    });
-    mensajes.forEach(async (each) => {
-      try {
-        await MessagesModel.findByIdAndDelete(each._id);
-      } catch (error) {}
-    });
+    }).select("_id");
+    await MessagesModel.deleteMany({ _id: { $in: mensajes } });
     res.status(200).json("mensajes borrados");
   } catch (error) {
     next(error);
@@ -133,7 +129,7 @@ router.delete("/:idMensaje", async (req, res, next) => {
     await MessagesModel.findByIdAndDelete(idMensaje);
     res.status(200).json("mensaje borrado");
   } catch (error) {
-    next(error).log(error);
+    next(error);
   }
 });
 

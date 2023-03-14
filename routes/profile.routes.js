@@ -62,12 +62,10 @@ router.patch("/:idUsuario/delete", async (req, res, next) => {
       profileImage:
         "https://res.cloudinary.com/dacltsvln/image/upload/v1678703493/re-Usa/ycvqs2xrodjsdigteaew.png",
     });
-    const deletedUserAds = await AdModel.find({ owner: idUsuario });
-    deletedUserAds.forEach(async (each) => {
-      try {
-        await AdModel.findByIdAndDelete(each._id);
-      } catch (error) {}
-    });
+    const deletedUserAds = await AdModel.find({ owner: idUsuario }).select(
+      "_id"
+    );
+    await AdModel.deleteMany({ _id: { $in: deletedUserAds } });
     res.status(200).json("Usuario Eliminado");
   } catch (error) {
     next(error);
