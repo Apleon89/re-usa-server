@@ -2,7 +2,7 @@ const router = require("express").Router();
 const UserModel = require("../models/User.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const isAuthenticated = require('../middlewares/auth.middlewares')
+const isAuthenticated = require("../middlewares/auth.middlewares");
 
 router.post("/registro", async (req, res, next) => {
   const { email, password, repeatPassword, username } = req.body;
@@ -20,11 +20,11 @@ router.post("/registro", async (req, res, next) => {
     return res.status(400).json({ errorMessage: "La contraseña no coincide" });
   }
 
-  //   if (passwordRegex.test(password) === false) {
-  //     return res
-  //       .status(400)
-  //       .json({ errorMessage: "La contraseña no lo suficientemente segura" });
-  //   }
+  if (passwordRegex.test(password) === false) {
+    return res
+      .status(400)
+      .json({ errorMessage: "La contraseña no es lo suficientemente segura" });
+  }
 
   if (emailRegex.test(email) === false) {
     return res
@@ -84,7 +84,7 @@ router.post("/acceso", async (req, res, next) => {
       _id: userFound._id,
       email: userFound.email,
       username: userFound.username,
-      profileImage: userFound.profileImage
+      profileImage: userFound.profileImage,
     };
 
     const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
@@ -101,7 +101,7 @@ router.post("/acceso", async (req, res, next) => {
 });
 
 router.get("/verify", isAuthenticated, (req, res, next) => {
-    res.status(200).json(req.payload);
+  res.status(200).json(req.payload);
 });
 
 module.exports = router;
